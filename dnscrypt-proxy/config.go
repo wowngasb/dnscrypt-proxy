@@ -366,7 +366,7 @@ func ConfigLoad(proxy *Proxy, flags *ConfigFlags) error {
 		dlog.Noticef("dnscrypt-proxy %s", AppVersion)
 	}
 	undecoded := md.Undecoded()
-	if len(undecoded) > 0 {
+	if len(undecoded) > 0 && !strings.HasSuffix(foundConfigFile, ".toml") {
 		return fmt.Errorf("Unsupported key in configuration file: [%s]", undecoded[0])
 	}
 
@@ -892,10 +892,15 @@ func (config *Config) loadSource(proxy *Proxy, cfgSourceName string, cfgSource *
 	if cfgSource.FormatStr == "" {
 		cfgSource.FormatStr = "v2"
 	}
-	if cfgSource.RefreshDelay <= 0 {
-		cfgSource.RefreshDelay = 72
+	if cfgSource.RefreshDelay == -1 {
+		cfgSource.RefreshDelay = 99999
+	} else {
+		if cfgSource.RefreshDelay <= 0 {
+			cfgSource.RefreshDelay = 72
+		}
+		cfgSource.RefreshDelay = Min(168, Max(24, cfgSource.RefreshDelay))
 	}
-	cfgSource.RefreshDelay = Min(168, Max(24, cfgSource.RefreshDelay))
+
 	source, err := NewSource(
 		cfgSourceName,
 		proxy.xTransport,

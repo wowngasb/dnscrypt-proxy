@@ -47,6 +47,10 @@ func main() {
 
 	svcFlag := flag.String("service", "", fmt.Sprintf("Control the system service: %q", service.ControlAction))
 	version := flag.Bool("version", false, "print current proxy version")
+	if !*version {
+		version = flag.Bool("v", false, "print current proxy version")
+	}
+
 	flags := ConfigFlags{}
 	flags.Resolve = flag.String("resolve", "", "resolve a DNS name (string can be <name> or <name>,<resolver address>)")
 	flags.List = flag.Bool("list", false, "print the list of available resolvers for the enabled filters")
